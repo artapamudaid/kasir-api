@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 type Produk struct {
@@ -19,43 +21,167 @@ var produk = []Produk{
 	{ID: 3, Nama: "Ultra Milk 1L", Harga: 20000, Stok: 200},
 }
 
+// main adalah fungsi entry point aplikasi kasir API.
+// Fungsi ini mengatur routing HTTP dan menjalankan server pada port 8080.
+//
+// Routes yang tersedia:
+// - GET /health: Endpoint untuk pengecekan kesehatan API
+// - GET /api/produk: Mengambil daftar semua produk
+// - POST /api/produk: Membuat produk baru
 func main() {
-	// localhost:8080/health
+
+	http.HandleFunc(
+		"/api/produk/", func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == "GET" {
+				getProdukByID(w, r)
+			} else if r.Method == "PUT" {
+				updateProduk(w, r)
+			} else if r.Method == "DELETE" {
+				deleteProduk(w, r)
+			}
+		})
+
+	// Handler untuk endpoint /api/produk
+	// Mendukung operasi GET (read) dan POST (create)
+	http.HandleFunc(
+		"/api/produk", func(w http.ResponseWriter, r *http.Request) {
+			// GET request: mengembalikan seluruh list produk
+			if r.Method == "GET" {
+				w.Header().Set("Content-Type", "application/json")
+				json.NewEncoder(w).Encode(produk)
+			} else if r.Method == "POST" {
+				// POST request: membuat produk baru
+				// Decode JSON dari request body ke struct Produk
+				var produkBaru Produk
+				err := json.NewDecoder(r.Body).Decode(&produkBaru)
+				if err != nil {
+					// Jika decode gagal, kirim error response
+					http.Error(w, "Invalid request", http.StatusBadRequest)
+				}
+
+				// Generate ID otomatis berdasarkan jumlah produk yang ada
+				produkBaru.ID = len(produk) + 1
+				// Tambahkan produk baru ke slice produk
+				produk = append(produk, produkBaru)
+
+				// Set response header dan status code
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusCreated) // HTTP 201 Created
+				// Kirim produk yang baru dibuat sebagai response
+				json.NewEncoder(w).Encode(produkBaru)
+			}
+		})
+
+	// Handler untuk endpoint /health
+	// Mengembalikan status API dalam format JSON
+	// Response: {"status": "OK", "message": "API Running"}
 	http.HandleFunc(
 		"/health", func(w http.ResponseWriter, r *http.Request) {
+			// Set header response sebagai JSON
 			w.Header().Set("Content-Type", "application/json")
+			// Encode dan kirim response JSON
 			json.NewEncoder(w).Encode(map[string]string{
 				"status":  "OK",
 				"message": "API Running",
 			})
 		})
 
-	http.HandleFunc(
-		"/api/produk", func(w http.ResponseWriter, r *http.Request) {
-			if r.Method == "GET" {
-				w.Header().Set("Content-Type", "application/json")
-				json.NewEncoder(w).Encode(produk)
-			} else if r.Method == "POST" {
-				var produkBaru Produk
-				err := json.NewDecoder(r.Body).Decode(&produkBaru)
-				if err != nil {
-					http.Error(w, "Invalid request", http.StatusBadRequest)
-				}
+	fmt.Println("Server running di localhost:8080")
 
-				produkBaru.ID = len(produk) + 1
-				produk = append(produk, produkBaru)
-
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusCreated)
-				json.NewEncoder(w).Encode(produkBaru)
-			}
-		})
-
+	// Jalankan HTTP server pada port 8080
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
+		// Jika server gagal berjalan, tampilkan pesan error
 		fmt.Println("Gagal Running Server")
-	} else {
-		fmt.Println("Server Running on PORT 8080")
 	}
+}
+
+func getProdukByID(w http.ResponseWriter, r *http.Request) {
+	// Parse ID dari URL path
+	// URL: /api/produk/123 -> ID = 123
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/produk/")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid Produk ID", http.StatusBadRequest)
+		return
+	}
+
+	//cari produk dengan id tersebut
+	for _, p := range produk {
+		if p.ID == id {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(p)
+			return
+		}
+	}
+
+	//kalau not found
+	http.Error(w, "Produk Belum Ada", http.StatusNotFound)
+}
+
+func updateProduk(w http.ResponseWriter, r *http.Request) {
+	//get produk id
+
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/produk/")
+
+	//ganti int
+	id, err := strconv.Atoi(idStr)
+
+	if err != nil {
+		http.Error(w, "Invalid Produk ID", http.StatusBadRequest)
+		return
+	}
+
+	//get data dari request
+	var updateProduk Produk
+	err = json.NewDecoder(r.Body).Decode(&updateProduk)
+	if err != nil {
+		http.Error(w, "Invalid Request", http.StatusBadRequest)
+		return
+	}
+
+	// loop produk, cari id, ganti sesuai data dari request
+	for i := range produk {
+		if produk[i].ID == id {
+			updateProduk.ID = id
+			produk[i] = updateProduk
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(updateProduk)
+
+			return
+		}
+	}
+
+	http.Error(w, "Produk Belum Ada", http.StatusNotFound)
+
+}
+
+func deleteProduk(w http.ResponseWriter, r *http.Request) {
+	//get produk ID
+
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/produk/")
+
+	//convert id dari string ke int
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid produk ID", http.StatusBadRequest)
+		return
+	}
+
+	for i, p := range produk {
+		if p.ID == id {
+			//buat slice baru dengan data sebelum dan sesudah index
+			produk = append(produk[:i], produk[i+1:]...)
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]string{
+				"message": "hapus berhasil",
+			})
+			return
+		}
+	}
+
+	http.Error(w, "Produk Belum Ada", http.StatusNotFound)
 
 }

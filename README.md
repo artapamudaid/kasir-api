@@ -1,18 +1,19 @@
 # Kasir API (Go Learning Project)
 
-Project ini adalah RESTful API sederhana untuk manajemen produk dan kategori Kasir, dibuat sebagai bahan belajar transisi dari **PHP** ke **Golang**. Project ini menerapkan konsep *Clean Architecture* (Handler -> Service -> Repository).
+Project ini adalah RESTful API sederhana untuk manajemen produk dan kategori Kasir, dibuat sebagai bahan belajar transisi dari **PHP** ke **Golang**. Project ini menerapkan konsep *Clean Architecture* (Handler -> Service -> Repository) dan **Relational Database**.
 
 ## 🚀 Fitur
 
-- **CRUD Produk**: Create, Read, Update, Delete data produk.
+- **CRUD Produk**: Create, Read, Update, Delete data produk (termasuk relasi ke Kategori).
 - **CRUD Kategori**: Create, Read, Update, Delete data kategori.
+- **Relasi Data**: Join Table antara Products dan Categories (One-to-Many).
 - **Auto Migration**: Tabel database (`products`, `categories`) dibuat otomatis saat aplikasi berjalan.
 - **Database**: Menggunakan PostgreSQL (driver `lib/pq`).
 - **Config Management**: Menggunakan `Viper` untuk handle environment variables (.env).
 
 ## 🛠️ Tech Stack
 
-- **Language**: Go (Golang) 1.21+
+- **Language**: Go (Golang) 1.25+
 - **Database**: PostgreSQL (via Supabase/Local)
 - **Router**: `net/http` (Standard Library) - Tanpa framework berat seperti Laravel!
 - **Config**: `github.com/spf13/viper`
@@ -26,7 +27,7 @@ Untuk mempermudah pemahaman programmer PHP:
 | `main.go` | `public/index.php` | Entry point aplikasi. Setup config, DB connection & wiring. |
 | `handlers/` | `Controllers/` | Menerima Request, validasi input, kirim Response (JSON). |
 | `services/` | `Services/` / `Logic` | Business logic. Validasi data sebelum ke DB. |
-| `repositories/` | `Models/` | Query SQL langsung `(SELECT, INSERT, dll)`. |
+| `repositories/` | `Models/` | Query SQL langsung `(SELECT JOIN, INSERT, dll)`. |
 | `models/` | `DTO` / Entity | Struct data. Class yang hanya berisi properti. |
 | `database/` | `config/database.php` | Init connection & Migration script. |
 
@@ -65,13 +66,14 @@ Untuk mempermudah pemahaman programmer PHP:
 ## 🔌 API Endpoints
 
 ### 📦 Produk
+Response produk sudah termasuk `category_name` (JOIN).
 
 | Method | Endpoint | Deskripsi | Body Request (JSON) |
 |--------|----------|-----------|---------------------|
 | `GET` | `/api/produk` | List semua produk | - |
-| `POST` | `/api/produk` | Tambah produk baru | `{"name": "...", "price": 1000, "stock": 10}` |
+| `POST` | `/api/produk` | Tambah produk baru | `{"name": "...", "price": 1000, "stock": 10, "category_id": 1}` |
 | `GET` | `/api/produk/{id}`| Detail produk | - |
-| `POST` | `/api/produk/{id}`| Update produk | `{"name": "...", "price": 1000, "stock": 10}` |
+| `POST` | `/api/produk/{id}`| Update produk | `{"name": "...", "price": 1000, "stock": 10, "category_id": 1}` |
 | `DELETE`| `/api/produk/{id}`| Hapus produk | - |
 
 ### 🏷️ Kategori

@@ -21,7 +21,17 @@ func NewProductRepository(db *sql.DB) *ProductRepository {
 // GetAll mengambil semua data produk dari database.
 // (repo *ProductRepository) artinya method ini milik struct ProductRepository (seperti $this di PHP).
 func (repo *ProductRepository) GetAll() ([]models.Product, error) {
-	query := "SELECT id, name, price, stock FROM products"
+	query := `
+		SELECT 
+			p.id, 
+			p.name, 
+			p.price, 
+			p.stock, 
+			c.id as category_id,
+			c.name as category_name
+		FROM products p
+		JOIN categories c ON p.category_id = c.id
+	`
 
 	// Eksekusi query query. Mengembalikan *sql.Rows (cursor hasil query)
 	rows, err := repo.db.Query(query)
@@ -43,7 +53,7 @@ func (repo *ProductRepository) GetAll() ([]models.Product, error) {
 		var p models.Product
 		// Scan menyalin data kolom ke variabel goal. Urutannya harus sama dengan SELECT.
 		// &p.ID artinya kita kirim alamat memori (pointer) variabel agar bisa diisi nilainya.
-		err := rows.Scan(&p.ID, &p.Name, &p.Price, &p.Stock)
+		err := rows.Scan(&p.ID, &p.Name, &p.Price, &p.Stock, &p.CategoryID, &p.CategoryName)
 		if err != nil {
 			return nil, err
 		}
@@ -59,20 +69,33 @@ func (repo *ProductRepository) GetAll() ([]models.Product, error) {
 func (repo *ProductRepository) Create(product *models.Product) error {
 	// $1, $2, $3 adalah placeholder parameter (untuk mencegah SQL Injection).
 	// RETURNING id digunakan (di PostgreSQL) untuk langsung dapat ID yang baru digenerate.
-	query := "INSERT INTO products (name, price, stock) VALUES ($1, $2, $3) RETURNING id"
+	query := "INSERT INTO products (name, price, stock, category_id) VALUES ($1, $2, $3, $4) RETURNING id"
 
 	// QueryRow digunakan karena kita cuma mengharapkan 1 baris hasil (yaitu ID).
-	err := repo.db.QueryRow(query, product.Name, product.Price, product.Stock).Scan(&product.ID)
+	err := repo.db.QueryRow(query, product.Name, product.Price, product.Stock, product.CategoryID).Scan(&product.ID)
+
+	if err != nil {
+		return err
+	}
+
+	// Fix: Ambil nama kategori agar response JSON lengkap (tidak kosong string-nya)
+	queryCategory := "SELECT name FROM categories WHERE id = $1"
+	err = repo.db.QueryRow(queryCategory, product.CategoryID).Scan(&product.CategoryName)
+
 	return err
 }
 
 // GetById mencari satu produk berdasarkan ID.
 func (repo *ProductRepository) GetById(id int) (*models.Product, error) {
-	query := "SELECT id, name, price, stock FROM products WHERE id = $1"
+	query := `SELECT p.id, p.name, p.price, p.stock, 
+				c.id as category_id, c.name as category_name
+				FROM products p 
+				JOIN categories c ON p.category_id = c.id 
+				WHERE p.id = $1`
 
 	var p models.Product
 	// QueryRow untuk ambil 1 data.
-	err := repo.db.QueryRow(query, id).Scan(&p.ID, &p.Name, &p.Price, &p.Stock)
+	err := repo.db.QueryRow(query, id).Scan(&p.ID, &p.Name, &p.Price, &p.Stock, &p.CategoryID, &p.CategoryName)
 
 	// Handle khusus jika data tidak ditemukan
 	if err == sql.ErrNoRows {
@@ -88,9 +111,9 @@ func (repo *ProductRepository) GetById(id int) (*models.Product, error) {
 
 // Update memperbarui data produk.
 func (repo *ProductRepository) Update(product *models.Product) error {
-	query := "UPDATE products SET name = $1, price = $2, stock = $3 WHERE id = $4"
+	query := "UPDATE products SET name = $1, price = $2, stock = $3, category_id = $4 WHERE id = $5"
 
-	result, err := repo.db.Exec(query, product.Name, product.Price, product.Stock, product.ID)
+	result, err := repo.db.Exec(query, product.Name, product.Price, product.Stock, product.CategoryID, product.ID)
 	if err != nil {
 		return err
 	}

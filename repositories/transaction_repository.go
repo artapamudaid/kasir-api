@@ -62,9 +62,27 @@ func (repo *TransactionRepository) CreateTransaction(items []models.CheckoutItem
 		return nil, err
 	}
 
-	for i := range details {
-		details[i].TransactionID = transactionID
-		_, err = tx.Exec("INSERT INTO transaction_details (transaction_id, product_id, quantity, subtotal) VALUES ($1, $2, $3, $4)", transactionID, details[i].ProductID, details[i].Quantity, details[i].Subtotal)
+	// Bulk Insert Optimization
+	// Menggabungkan semua insert menjadi satu query untuk mengurangi Round-Trip Time (RTT) ke database.
+	if len(details) > 0 {
+		query := "INSERT INTO transaction_details (transaction_id, product_id, quantity, subtotal) VALUES "
+		vals := []interface{}{}
+
+		for i, detail := range details {
+			// Update struct di memori agar response lengkap
+			details[i].TransactionID = transactionID
+
+			// Buat placeholder ($1, $2, $3, $4), ($5, $6, $7, $8), dst...
+			n := i * 4
+			query += fmt.Sprintf("($%d, $%d, $%d, $%d),", n+1, n+2, n+3, n+4)
+			vals = append(vals, transactionID, detail.ProductID, detail.Quantity, detail.Subtotal)
+		}
+
+		// Hapus koma terakhir
+		query = query[:len(query)-1]
+
+		// Eksekusi satu query besar
+		_, err = tx.Exec(query, vals...)
 		if err != nil {
 			return nil, err
 		}

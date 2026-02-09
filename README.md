@@ -93,6 +93,13 @@ Response produk sudah termasuk `category_name` (JOIN).
 |--------|----------|-----------|---------------------|
 | `POST` | `/api/checkout` | Checkout belanjaan | `{"items": [{"product_id": 1, "quantity": 2}]}` |
 
+### 📊 Laporan (Report)
+
+| Method | Endpoint | Deskripsi | Query Parameters |
+|--------|----------|-----------|------------------|
+| `GET` | `/api/report/hari-ini` | Laporan penjualan hari ini | - |
+| `GET` | `/api/report` | Laporan penjualan berdasarkan tanggal | `?start_date=2024-01-01&end_date=2024-12-31` |
+
 *(Catatan: Update dan Delete menggunakan method POST & DELETE sesuai standar REST, meskipun untuk update di sini disederhanakan menggunakan POST endpoint yang sama dengan Detail jika diperlukan logic khusus, namun implementasi code menggunakan POST pada handler update).*
 
 ---

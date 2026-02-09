@@ -35,7 +35,7 @@ func (repo *ProductRepository) GetAll(filterName string) ([]models.Product, erro
 
 	args := []interface{}{}
 	if filterName != "" {
-		query += "WHERE p.name LIKE $1"
+		query += " WHERE p.name ILIKE $1"
 		args = append(args, "%"+filterName+"%")
 	}
 

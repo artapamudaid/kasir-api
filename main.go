@@ -55,12 +55,15 @@ func main() {
 	// 1. Repository butuh DB
 	productRepo := repositories.NewProductRepository(db)
 	categoryRepo := repositories.NewCategoryRepository(db)
+	transactionRepo := repositories.NewTransactionRepository(db)
 	// 2. Service butuh Repository
 	productService := services.NewProductService(productRepo)
 	categoryService := services.NewCategoryService(categoryRepo)
+	transactionService := services.NewTransactionService(transactionRepo)
 	// 3. Handler (Controller) butuh Service
 	productHandler := handlers.NewProductHandler(productService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
+	transactionHandler := handlers.NewTransactionHandler(transactionService)
 
 	// === ROUTING ===
 	// Menggunakan Default ServeMux dari package net/http
@@ -72,6 +75,9 @@ func main() {
 	// Route untuk CATEGORIES (Menggunakan Pattern Layered Architecture yang proper)
 	http.HandleFunc("/api/categories", categoryHandler.HandleCategories)
 	http.HandleFunc("/api/categories/", categoryHandler.HandleCategoryByID)
+
+	// Route untuk TRANSACTIONS (Menggunakan Pattern Layered Architecture yang proper)
+	http.HandleFunc("/api/checkout", transactionHandler.Checkout)
 
 	// Handler untuk endpoint /health
 	http.HandleFunc(

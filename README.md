@@ -7,7 +7,8 @@ Project ini adalah RESTful API sederhana untuk manajemen produk dan kategori Kas
 - **CRUD Produk**: Create, Read, Update, Delete data produk (termasuk relasi ke Kategori).
 - **CRUD Kategori**: Create, Read, Update, Delete data kategori.
 - **Relasi Data**: Join Table antara Products dan Categories (One-to-Many).
-- **Auto Migration**: Tabel database (`products`, `categories`) dibuat otomatis saat aplikasi berjalan.
+- **Checkout Transaksi**: Endpoint untuk membuat transaksi belanja (mengurangi stok produk secara otomatis).
+- **Auto Migration**: Tabel database (`products`, `categories`, `transactions`, `transaction_details`) dibuat otomatis saat aplikasi berjalan.
 - **Database**: Menggunakan PostgreSQL (driver `lib/pq`).
 - **Config Management**: Menggunakan `Viper` untuk handle environment variables (.env).
 
@@ -85,6 +86,12 @@ Response produk sudah termasuk `category_name` (JOIN).
 | `GET` | `/api/categories/{id}`| Detail kategori | - |
 | `POST` | `/api/categories/{id}`| Update kategori | `{"name": "...", "description": "..."}` |
 | `DELETE`| `/api/categories/{id}`| Hapus kategori | - |
+
+### 🛒 Transaksi (Checkout)
+
+| Method | Endpoint | Deskripsi | Body Request (JSON) |
+|--------|----------|-----------|---------------------|
+| `POST` | `/api/checkout` | Checkout belanjaan | `{"items": [{"product_id": 1, "quantity": 2}]}` |
 
 *(Catatan: Update dan Delete menggunakan method POST & DELETE sesuai standar REST, meskipun untuk update di sini disederhanakan menggunakan POST endpoint yang sama dengan Detail jika diperlukan logic khusus, namun implementasi code menggunakan POST pada handler update).*
 

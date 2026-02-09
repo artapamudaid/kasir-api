@@ -54,7 +54,8 @@ func (h *ProductHandler) HandleProductByID(w http.ResponseWriter, r *http.Reques
 // GetAll mengambil semua data dan mengirimkan JSON response.
 func (h *ProductHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	// Panggil service untuk ambil data
-	products, err := h.service.GetAll()
+	name := r.URL.Query().Get("name")
+	products, err := h.service.GetAll(name)
 	if err != nil {
 		// http.Error adalah helper untuk mengirim error response sederhana
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -111,6 +112,7 @@ func (h *ProductHandler) GetById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(product)
 }
 
+// Update menghandle request update data produk.
 func (h *ProductHandler) Update(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/produk/")
 	id, err := strconv.Atoi(idStr)
@@ -138,6 +140,7 @@ func (h *ProductHandler) Update(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(product)
 }
 
+// Delete menghandle request penghapusan produk.
 func (h *ProductHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/produk/")
 	id, err := strconv.Atoi(idStr)

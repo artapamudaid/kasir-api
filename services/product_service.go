@@ -19,8 +19,8 @@ func NewProductService(repo *repositories.ProductRepository) *ProductService {
 }
 
 // GetAll mengambil semua produk, saat ini hanya meneruskan ke repository.
-func (s *ProductService) GetAll() ([]models.Product, error) {
-	return s.repo.GetAll()
+func (s *ProductService) GetAll(name string) ([]models.Product, error) {
+	return s.repo.GetAll(name)
 }
 
 // Create membuat produk baru.
@@ -29,14 +29,17 @@ func (s *ProductService) Create(data *models.Product) error {
 	return s.repo.Create(data)
 }
 
+// GetById mengambil satu produk secara spesifik.
 func (s *ProductService) GetById(id int) (*models.Product, error) {
 	return s.repo.GetById(id)
 }
 
+// Update memvalidasi dan memperbarui data produk.
 func (s *ProductService) Update(product *models.Product) error {
 	return s.repo.Update(product)
 }
 
+// Delete menghapus produk (soft delete atau hard delete, tergantung implementasi repo).
 func (s *ProductService) Delete(id int) error {
 	return s.repo.Delete(id)
 }

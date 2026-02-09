@@ -20,7 +20,8 @@ func NewProductRepository(db *sql.DB) *ProductRepository {
 
 // GetAll mengambil semua data produk dari database.
 // (repo *ProductRepository) artinya method ini milik struct ProductRepository (seperti $this di PHP).
-func (repo *ProductRepository) GetAll() ([]models.Product, error) {
+func (repo *ProductRepository) GetAll(filterName string) ([]models.Product, error) {
+
 	query := `
 		SELECT 
 			p.id, 
@@ -30,11 +31,16 @@ func (repo *ProductRepository) GetAll() ([]models.Product, error) {
 			c.id as category_id,
 			c.name as category_name
 		FROM products p
-		JOIN categories c ON p.category_id = c.id
-	`
+		JOIN categories c ON p.category_id = c.id`
+
+	args := []interface{}{}
+	if filterName != "" {
+		query += "WHERE p.name LIKE $1"
+		args = append(args, "%"+filterName+"%")
+	}
 
 	// Eksekusi query query. Mengembalikan *sql.Rows (cursor hasil query)
-	rows, err := repo.db.Query(query)
+	rows, err := repo.db.Query(query, args...)
 
 	// Cek error standar di Go. Kalau err != nil, berarti ada masalah.
 	if err != nil {

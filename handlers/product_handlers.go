@@ -92,9 +92,9 @@ func (h *ProductHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ProductHandler) GetById(w http.ResponseWriter, r *http.Request) {
-	// Parsing ID dari URL manual, karena pakai standard library net/http (agak ribet dibanding framework seperti Gin/Echo).
-	// Mengambil string setelah "/api/produk/"
-	idStr := strings.TrimPrefix(r.URL.Path, "/api/produk/")
+	// Parsing ID dari URL update agar lebih dinamis tidak hardcode path
+	parts := strings.Split(r.URL.Path, "/")
+	idStr := parts[len(parts)-1]
 	id, err := strconv.Atoi(idStr) // Convert string ke int
 
 	if err != nil {
@@ -114,7 +114,8 @@ func (h *ProductHandler) GetById(w http.ResponseWriter, r *http.Request) {
 
 // Update menghandle request update data produk.
 func (h *ProductHandler) Update(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/api/produk/")
+	parts := strings.Split(r.URL.Path, "/")
+	idStr := parts[len(parts)-1]
 	id, err := strconv.Atoi(idStr)
 
 	if err != nil {
@@ -142,7 +143,8 @@ func (h *ProductHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 // Delete menghandle request penghapusan produk.
 func (h *ProductHandler) Delete(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/api/produk/")
+	parts := strings.Split(r.URL.Path, "/")
+	idStr := parts[len(parts)-1]
 	id, err := strconv.Atoi(idStr)
 
 	if err != nil {

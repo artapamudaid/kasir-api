@@ -78,12 +78,12 @@ func main() {
 	// Menggunakan Default ServeMux dari package net/http
 
 	// Route untuk PRODUK (Menggunakan Pattern Layered Architecture yang proper)
-	http.HandleFunc("/api/produk", middleware.CORS(middleware.Logger(apiKeyMiddleware(productHandler.HandleProducts))))
-	http.HandleFunc("/api/produk/", middleware.CORS(middleware.Logger(apiKeyMiddleware(productHandler.HandleProductByID))))
+	http.HandleFunc("/api/product", middleware.CORS(middleware.Logger(apiKeyMiddleware(productHandler.HandleProducts))))
+	http.HandleFunc("/api/product/", middleware.CORS(middleware.Logger(apiKeyMiddleware(productHandler.HandleProductByID))))
 
 	// Route untuk CATEGORIES (Menggunakan Pattern Layered Architecture yang proper)
-	http.HandleFunc("/api/categories", middleware.CORS(middleware.Logger(apiKeyMiddleware(categoryHandler.HandleCategories))))
-	http.HandleFunc("/api/categories/", middleware.CORS(middleware.Logger(apiKeyMiddleware(categoryHandler.HandleCategoryByID))))
+	http.HandleFunc("/api/category", middleware.CORS(middleware.Logger(apiKeyMiddleware(categoryHandler.HandleCategories))))
+	http.HandleFunc("/api/category/", middleware.CORS(middleware.Logger(apiKeyMiddleware(categoryHandler.HandleCategoryByID))))
 
 	// Route untuk TRANSACTIONS (Menggunakan Pattern Layered Architecture yang proper)
 	http.HandleFunc("/api/checkout", middleware.CORS(middleware.Logger(apiKeyMiddleware(transactionHandler.Checkout))))

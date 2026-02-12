@@ -76,21 +76,21 @@ Response produk sudah termasuk `category_name` (JOIN).
 
 | Method | Endpoint | Deskripsi | Body Request (JSON) |
 |--------|----------|-----------|---------------------|
-| `GET` | `/api/produk` | List semua produk | - |
-| `POST` | `/api/produk` | Tambah produk baru | `{"name": "...", "price": 1000, "stock": 10, "category_id": 1}` |
-| `GET` | `/api/produk/{id}`| Detail produk | - |
-| `POST` | `/api/produk/{id}`| Update produk | `{"name": "...", "price": 1000, "stock": 10, "category_id": 1}` |
-| `DELETE`| `/api/produk/{id}`| Hapus produk | - |
+| `GET` | `/api/product` | List semua produk | - |
+| `POST` | `/api/product` | Tambah produk baru | `{"name": "...", "price": 1000, "stock": 10, "category_id": 1}` |
+| `GET` | `/api/product/{id}`| Detail produk | - |
+| `POST` | `/api/product/{id}`| Update produk | `{"name": "...", "price": 1000, "stock": 10, "category_id": 1}` |
+| `DELETE`| `/api/product/{id}`| Hapus produk | - |
 
 ### 🏷️ Kategori
 
 | Method | Endpoint | Deskripsi | Body Request (JSON) |
 |--------|----------|-----------|---------------------|
-| `GET` | `/api/categories` | List semua kategori | - |
-| `POST` | `/api/categories` | Tambah kategori baru | `{"name": "...", "description": "..."}` |
-| `GET` | `/api/categories/{id}`| Detail kategori | - |
-| `POST` | `/api/categories/{id}`| Update kategori | `{"name": "...", "description": "..."}` |
-| `DELETE`| `/api/categories/{id}`| Hapus kategori | - |
+| `GET` | `/api/category` | List semua kategori | - |
+| `POST` | `/api/category` | Tambah kategori baru | `{"name": "...", "description": "..."}` |
+| `GET` | `/api/category/{id}`| Detail kategori | - |
+| `POST` | `/api/category/{id}`| Update kategori | `{"name": "...", "description": "..."}` |
+| `DELETE`| `/api/category/{id}`| Hapus kategori | - |
 
 ### 🛒 Transaksi (Checkout)
 

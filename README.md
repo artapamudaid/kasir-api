@@ -11,6 +11,7 @@ Project ini adalah RESTful API sederhana untuk manajemen produk dan kategori Kas
 - **Auto Migration**: Tabel database (`products`, `categories`, `transactions`, `transaction_details`) dibuat otomatis saat aplikasi berjalan.
 - **Database**: Menggunakan PostgreSQL (driver `lib/pq`).
 - **Config Management**: Menggunakan `Viper` untuk handle environment variables (.env).
+- **Security**: Middleware sederhana menggunakan Static API Key (`X-API-Key`).
 
 ## 🛠️ Tech Stack
 
@@ -49,6 +50,7 @@ Untuk mempermudah pemahaman programmer PHP:
    ```ini
    PORT=8080
    DB_CONN=postgresql://user:password@host:port/dbname?sslmode=disable
+   API_KEY=rahasia123
    ```
 
 3. **Install Dependencies**
@@ -65,6 +67,9 @@ Untuk mempermudah pemahaman programmer PHP:
    *Note: Saat pertama kali dijalankan, aplikasi akan otomatis menjalankan MIGRATION (membuat tabel products & categories).*
 
 ## 🔌 API Endpoints
+   
+Semua request ke endpoint di bawah ini (kecuali `/health`) **WAJIB** menyertakan header:
+`X-API-Key: <nilai_api_key_di_env>`
 
 ### 📦 Produk
 Response produk sudah termasuk `category_name` (JOIN).

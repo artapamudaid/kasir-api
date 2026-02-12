@@ -78,19 +78,19 @@ func main() {
 	// Menggunakan Default ServeMux dari package net/http
 
 	// Route untuk PRODUK (Menggunakan Pattern Layered Architecture yang proper)
-	http.HandleFunc("/api/produk", apiKeyMiddleware(productHandler.HandleProducts))
-	http.HandleFunc("/api/produk/", apiKeyMiddleware(productHandler.HandleProductByID))
+	http.HandleFunc("/api/produk", middleware.CORS(middleware.Logger(apiKeyMiddleware(productHandler.HandleProducts))))
+	http.HandleFunc("/api/produk/", middleware.CORS(middleware.Logger(apiKeyMiddleware(productHandler.HandleProductByID))))
 
 	// Route untuk CATEGORIES (Menggunakan Pattern Layered Architecture yang proper)
-	http.HandleFunc("/api/categories", apiKeyMiddleware(categoryHandler.HandleCategories))
-	http.HandleFunc("/api/categories/", apiKeyMiddleware(categoryHandler.HandleCategoryByID))
+	http.HandleFunc("/api/categories", middleware.CORS(middleware.Logger(apiKeyMiddleware(categoryHandler.HandleCategories))))
+	http.HandleFunc("/api/categories/", middleware.CORS(middleware.Logger(apiKeyMiddleware(categoryHandler.HandleCategoryByID))))
 
 	// Route untuk TRANSACTIONS (Menggunakan Pattern Layered Architecture yang proper)
-	http.HandleFunc("/api/checkout", apiKeyMiddleware(transactionHandler.Checkout))
+	http.HandleFunc("/api/checkout", middleware.CORS(middleware.Logger(apiKeyMiddleware(transactionHandler.Checkout))))
 
 	// Route untuk REPORT
-	http.HandleFunc("/api/report/hari-ini", apiKeyMiddleware(reportHandler.GetTodaySales))
-	http.HandleFunc("/api/report", apiKeyMiddleware(reportHandler.GetReport))
+	http.HandleFunc("/api/report/hari-ini", middleware.CORS(middleware.Logger(apiKeyMiddleware(reportHandler.GetTodaySales))))
+	http.HandleFunc("/api/report", middleware.CORS(middleware.Logger(apiKeyMiddleware(reportHandler.GetReport))))
 
 	// Handler untuk endpoint /health
 	http.HandleFunc(

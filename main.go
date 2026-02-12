@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"kasir-api/database"
 	"kasir-api/handlers"
+	"kasir-api/middleware"
 	"kasir-api/repositories"
 	"kasir-api/services"
 	"log"
@@ -17,8 +18,9 @@ import (
 
 // Config struct untuk menampung konfigurasi dari environment variables atau file .env
 type Config struct {
-	Port   string `mapstructure:"PORT"`    // Ambil dari key PORT
-	DBConn string `mapstructure:"DB_CONN"` // Ambil dari key DB_CONN
+	Port    string `mapstructure:"PORT"`    // Ambil dari key PORT
+	DBConn  string `mapstructure:"DB_CONN"` // Ambil dari key DB_CONN
+	API_KEY string `mapstructure:"API_KEY"` // Ambil dari key API_KEY
 }
 
 // main adalah Fungsi Utama (Entry Point) aplikasi Go. Mirip index.php di projecr PHP.
@@ -35,8 +37,9 @@ func main() {
 
 	// Load config ke struct
 	config := Config{
-		Port:   viper.GetString("PORT"),
-		DBConn: viper.GetString("DB_CONN"),
+		Port:    viper.GetString("PORT"),
+		DBConn:  viper.GetString("DB_CONN"),
+		API_KEY: viper.GetString("API_KEY"),
 	}
 
 	// Setup database connection
@@ -68,23 +71,26 @@ func main() {
 	transactionHandler := handlers.NewTransactionHandler(transactionService)
 	reportHandler := handlers.NewReportHandler(reportService)
 
+	// Setup Middleware
+	apiKeyMiddleware := middleware.ApiKey(config.API_KEY)
+
 	// === ROUTING ===
 	// Menggunakan Default ServeMux dari package net/http
 
 	// Route untuk PRODUK (Menggunakan Pattern Layered Architecture yang proper)
-	http.HandleFunc("/api/produk", productHandler.HandleProducts)
-	http.HandleFunc("/api/produk/", productHandler.HandleProductByID)
+	http.HandleFunc("/api/produk", apiKeyMiddleware(productHandler.HandleProducts))
+	http.HandleFunc("/api/produk/", apiKeyMiddleware(productHandler.HandleProductByID))
 
 	// Route untuk CATEGORIES (Menggunakan Pattern Layered Architecture yang proper)
-	http.HandleFunc("/api/categories", categoryHandler.HandleCategories)
-	http.HandleFunc("/api/categories/", categoryHandler.HandleCategoryByID)
+	http.HandleFunc("/api/categories", apiKeyMiddleware(categoryHandler.HandleCategories))
+	http.HandleFunc("/api/categories/", apiKeyMiddleware(categoryHandler.HandleCategoryByID))
 
 	// Route untuk TRANSACTIONS (Menggunakan Pattern Layered Architecture yang proper)
-	http.HandleFunc("/api/checkout", transactionHandler.Checkout)
+	http.HandleFunc("/api/checkout", apiKeyMiddleware(transactionHandler.Checkout))
 
 	// Route untuk REPORT
-	http.HandleFunc("/api/report/hari-ini", reportHandler.GetTodaySales)
-	http.HandleFunc("/api/report", reportHandler.GetReport)
+	http.HandleFunc("/api/report/hari-ini", apiKeyMiddleware(reportHandler.GetTodaySales))
+	http.HandleFunc("/api/report", apiKeyMiddleware(reportHandler.GetReport))
 
 	// Handler untuk endpoint /health
 	http.HandleFunc(

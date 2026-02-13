@@ -2,6 +2,9 @@
 
 Project ini adalah RESTful API sederhana untuk manajemen produk dan kategori Kasir, dibuat sebagai bahan belajar transisi dari **PHP** ke **Golang**. Project ini menerapkan konsep *Clean Architecture* (Handler -> Service -> Repository) dan **Relational Database**.
 
+- **Backend**: https://kasir-api-arta.up.railway.app
+- **Frontend**: https://kasir-app-arta.bolt.host
+
 ## 🚀 Fitur
 
 - **CRUD Produk**: Create, Read, Update, Delete data produk (termasuk relasi ke Kategori).
